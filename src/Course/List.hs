@@ -337,8 +337,8 @@ produce f x = x:.produce f (f x)
 notReverse ::
   List a
   -> List a
-notReverse =
-  error "todo: Is it even possible?"
+notReverse = const Nil
+  -- error "todo: Is it even possible?"
 
 ---- End of list exercises
 

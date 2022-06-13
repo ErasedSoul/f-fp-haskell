@@ -25,6 +25,7 @@ class Functor k where
     -> k a
     -> k b
 
+
 infixl 4 <$>
 
 -- $setup
@@ -41,8 +42,8 @@ instance Functor ExactlyOne where
     (a -> b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance ExactlyOne"
+  f <$> ExactlyOne j = ExactlyOne (f j)
+    --error "todo: Course.Functor (<$>)#instance ExactlyOne"
 
 -- | Maps a function on the List functor.
 --
@@ -56,8 +57,9 @@ instance Functor List where
     (a -> b)
     -> List a
     -> List b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance List"
+  _ <$> Nil = Nil 
+  f <$> (x:.xs) = (f x):.(f <$> xs)
+    
 
 -- | Maps a function on the Optional functor.
 --
@@ -71,8 +73,9 @@ instance Functor Optional where
     (a -> b)
     -> Optional a
     -> Optional b
-  (<$>) =
-    error "todo: Course.Functor (<$>)#instance Optional"
+  _ <$> Empty = Empty
+  f <$> Full x = Full(f x)
+    --error "todo: Course.Functor (<$>)#instance Optional"
 
 -- | Maps a function on the reader ((->) t) functor.
 --
@@ -83,8 +86,8 @@ instance Functor ((->) t) where
     (a -> b)
     -> ((->) t a)
     -> ((->) t b)
-  (<$>) =
-    error "todo: Course.Functor (<$>)#((->) t)"
+  f <$> w = f.w
+    --error "todo: Course.Functor (<$>)#((->) t)"
 
 -- | Anonymous map. Maps a constant value on a functor.
 --
@@ -94,13 +97,8 @@ instance Functor ((->) t) where
 -- prop> \x a b c -> x <$ (a :. b :. c :. Nil) == (x :. x :. x :. Nil)
 --
 -- prop> \x q -> x <$ Full q == Full x
-(<$) ::
-  Functor k =>
-  a
-  -> k b
-  -> k a
-(<$) =
-  error "todo: Course.Functor#(<$)"
+(<$) :: Functor k => a -> k b -> k a
+a <$ x = (const a) <$> x  
 
 -- | Apply a value to a functor-of-functions.
 --
@@ -118,16 +116,21 @@ instance Functor ((->) t) where
 -- [16,9,99]
 --
 -- >>> Empty ?? 2
--- Empty
-(??) ::
-  Functor k =>
-  k (a -> b)
-  -> a
-  -> k b
-(??) ff a =
-  error "todo: Course.Functor#(??)"
-
+-- Empty 
+-- (??) ::
+--   Functor f =>
+--   f (a -> b)
+--   -> a
+--   -> f b
+(??) ff a = (\f -> f a) <$> ff 
 infixl 1 ??
+
+{-  
+     Hi, here what we have is that using a lambda function and taking all 
+     functions as input and applying to a one by one .. 
+     VVIMP : We are taking function as an input in the lambda function.rea
+    
+-}
 
 -- | Anonymous map producing unit value.
 --
@@ -146,8 +149,8 @@ void ::
   Functor k =>
   k a
   -> k ()
-void =
-  error "todo: Course.Functor#void"
+void  = (<$) ()
+  --error "todo: Course.Functor#void"
 
 -----------------------
 -- SUPPORT LIBRARIES --
