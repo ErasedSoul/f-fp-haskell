@@ -160,11 +160,15 @@ infixl 1 >>=
 -- m a -> (a -> m b) -> m b 
 (<=<) ::
   Monad k =>
-  (b -> k c)
-  -> (a -> k b)
+  (b -> k c) f 
+  -> (a -> k b) g 
   -> a
   -> k c
-f <=< g  = (\a -> f =<< g a) 
+f <=< g  = (\a -> f =<< g a)
+
+  -- After passing it to g we get (k b) 
+  -- then use monad to pass it to f to get k c  
+
   --error "todo: Course.Monad#(<=<)"
 
 infixr 1 <=<
