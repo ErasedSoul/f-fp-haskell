@@ -36,8 +36,8 @@ instance Monad ExactlyOne where
     (a -> ExactlyOne b)
     -> ExactlyOne a
     -> ExactlyOne b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ExactlyOne"
+  f =<< ExactlyOne a = (f a)  
+
 
 -- | Binds a function on a List.
 --
@@ -45,11 +45,10 @@ instance Monad ExactlyOne where
 -- [1,1,2,2,3,3]
 instance Monad List where
   (=<<) ::
-    (a -> List b)
+    (a -> List b) 
     -> List a
     -> List b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance List"
+  f =<< a = flatMap f a  
 
 -- | Binds a function on an Optional.
 --
@@ -60,8 +59,8 @@ instance Monad Optional where
     (a -> Optional b)
     -> Optional a
     -> Optional b
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance Optional"
+  f =<< Full a = f a
+  f =<< Empty = Empty
 
 -- | Binds a function on the reader ((->) t).
 --
@@ -72,8 +71,7 @@ instance Monad ((->) t) where
     (a -> ((->) t b))
     -> ((->) t a)
     -> ((->) t b)
-  (=<<) =
-    error "todo: Course.Monad (=<<)#instance ((->) t)"
+  f =<< g = (\x -> f (g x) x)   
 
 -- | Witness that all things with (=<<) and (<$>) also have (<*>).
 --
@@ -111,8 +109,7 @@ instance Monad ((->) t) where
   k (a -> b)
   -> k a
   -> k b
-(<**>) =
-  error "todo: Course.Monad#(<**>)"
+f <**> a =  f <*> a  
 
 infixl 4 <**>
 
@@ -129,13 +126,16 @@ infixl 4 <**>
 --
 -- >>> join (+) 7
 -- 14
+-- (k a ) -> (a -> k b) -> k b  
 join ::
   Monad k =>
   k (k a)
   -> k a
-join =
-  error "todo: Course.Monad#join"
+join kka = id =<< kka
+--join kka = kka >>= (\ka -> ka)
+--ww have this  ::: m a -> (a -> m b) -> m b  
 
+     
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
 -- Pronounced, bind flipped.
@@ -147,8 +147,7 @@ join =
   k a
   -> (a -> k b)
   -> k b
-(>>=) =
-  error "todo: Course.Monad#(>>=)"
+a >>= f = join (f <$> a)
 
 infixl 1 >>=
 
@@ -156,15 +155,17 @@ infixl 1 >>=
 -- Pronounced, Kleisli composition.
 --
 -- >>> ((\n -> n :. n :. Nil) <=< (\n -> n+1 :. n+2 :. Nil)) 1
--- [2,2,3,3]
+-- [2,2,3,3] 
+--(a -> m b) -> (b -> m c) -> (a -> m c) 
+-- m a -> (a -> m b) -> m b 
 (<=<) ::
   Monad k =>
   (b -> k c)
   -> (a -> k b)
   -> a
   -> k c
-(<=<) =
-  error "todo: Course.Monad#(<=<)"
+f <=< g  = (\a -> f =<< g a) 
+  --error "todo: Course.Monad#(<=<)"
 
 infixr 1 <=<
 

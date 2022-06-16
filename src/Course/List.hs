@@ -174,7 +174,9 @@ filter f x = foldRight (\x acc -> if f x then (x:.acc) else acc) Nil x
   List a
   -> List a
   -> List a
-(++) x y = foldRight (\x acc -> x:.acc) y x
+Nil ++ y = y  
+(x:.xs) ++ y = x:.(xs ++ y)    
+--(++) x y = foldRight (\x acc -> x:.acc) y x
 
 infixr 5 ++
 
@@ -309,8 +311,9 @@ lengthGT4 _ = False
 reverse ::
   List a
   -> List a
-reverse x =
-  foldLeft (\acc x -> x:.acc) Nil x 
+reverse Nil = Nil   
+reverse (x:.xs) = reverse xs ++ (x:.Nil)
+  --foldLeft (\acc x -> x:.acc) Nil x 
 -- | Produce an infinite `List` that seeds with the given value at its head,
 -- then runs the given function for subsequent elements
 --
